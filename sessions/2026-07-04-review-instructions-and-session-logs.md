@@ -25,6 +25,17 @@ AI-assisted PHI-base/PHI-Canto biocuration on the ROGER GPU cluster.
 - Provisioned session logs: `sessions/` folder + `SessionStart` hook
   (`.claude/hooks/inject-latest-sessions.py`, wired in `.claude/settings.json`).
   Hook activates on the **next** session in this vault.
+- Built the **autonomous build harness** under `automation/`: the whole project as
+  9 PR-sized task files (`tasks/00-scaffold.md` … `60-phenotype-plugin.md`,
+  Phases 0–6; Phase 7 ROGER stays manual), a standing-rules `PREAMBLE.md`, a
+  `PLAN.md` step map, and `autobuild.sh` — a bash runner that executes one task per
+  run and **auto-relaunches when Claude Code hits its usage limit** (detects the
+  limit message, sleeps `PHIKESTREL_RETRY_SECONDS`=1800s, retries the same task).
+- Verified plumbing: WSL git commits fine in this repo (only `git config` hits the
+  9p chmod gotcha); wired `gh auth setup-git` as git's credential helper; pushed
+  `main` to origin so the runner's `auto/build` base carries the task files.
+- **Not started yet** — the runner is ready but I left kicking it off to Martin
+  (it burns the premium window + uses `--dangerously-skip-permissions`).
 
 ## Decisions
 | Decision | Rationale |
@@ -34,9 +45,12 @@ AI-assisted PHI-base/PHI-Canto biocuration on the ROGER GPU cluster.
 | No CLAUDE.md edit | Vault has no CLAUDE.md yet, so nothing to update |
 
 ## Next steps
-- [ ] Scaffold the repo (Phase 0: layout, `pyproject.toml`, CI, README) — still pending
-- [ ] Decide runner: scheduled cloud routine vs. local loop for one-task-per-run PRs
-- [ ] Consider folding review instructions into a scheduled review routine's prompt
+- [ ] **Start the autobuild runner** and watch the first task (Phase 0 scaffold):
+      `cd /mnt/z/phikestrel && nohup bash automation/autobuild.sh >> automation/logs/nohup.out 2>&1 &`
+      then `tail -f automation/logs/autobuild.log`
+- [ ] Review + merge each `auto/build` → `main` PR by hand (prefer merge commit, not
+      squash, so the runner's rebase stays clean); nothing auto-merges
+- [ ] Point Opus at `docs/REVIEW-INSTRUCTIONS.md` when reviewing those PRs
 - [ ] Keep ROGER bring-up (Phase 7) as the supervised, hands-on phase
 
 ## Links
