@@ -29,6 +29,12 @@ RETRY_SECONDS="${PHIKESTREL_RETRY_SECONDS:-1800}"   # wait before relaunch after
 # Unattended runs can't answer permission prompts. Default to skipping them; set
 # PHIKESTREL_CLAUDE_FLAGS to override with a narrower policy if you prefer.
 read -r -a CLAUDE_FLAGS <<< "${PHIKESTREL_CLAUDE_FLAGS:---dangerously-skip-permissions}"
+# Model for the headless build runs. Deliberately NOT Fable 5 — these tasks are small,
+# tightly-specified and test-gated, so Sonnet 5 is plenty and far lighter on usage, and it
+# steers clear of any Fable/biology-project block. Bump to 'opus' for stronger code, or set
+# PHIKESTREL_MODEL to anything the `claude --model` flag accepts.
+MODEL="${PHIKESTREL_MODEL:-sonnet}"
+CLAUDE_FLAGS+=(--model "$MODEL")
 
 mkdir -p "$LOG_DIR"
 touch "$PROGRESS"
