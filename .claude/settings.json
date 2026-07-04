@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /mnt/z/phikestrel/.claude/hooks/inject-latest-sessions.py",
+            "timeout": 15,
+            "statusMessage": "Loading latest session logs + active project..."
+          }
+        ]
+      }
+    ]
+  }
+}
