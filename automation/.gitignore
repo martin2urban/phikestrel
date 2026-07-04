@@ -1,0 +1,3 @@
+# Runner state — local only, never committed
+.progress
+logs/
