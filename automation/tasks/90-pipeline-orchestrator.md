@@ -23,6 +23,15 @@ Build in `core/` (stdlib only). This is host orchestration, not a plugin.
 - A small **run-from-root CLI entry** (`python3 -m ...`) that reads a pipeline definition
   (the ordered list of plugin manifests) and a starting `document`, and prints the report.
   This is the end-to-end `paper → ...` command.
+- **Default output = a human-readable summary** (the maintainer is a domain scientist, not a
+  developer — plain text they can skim, not raw JSON). For each result item, print:
+  the **status** (clearly marked, e.g. `[success]` / `[ambiguous → review]` /
+  `[not_found]` / `[error]`), the **phenotype** text, the mapped **PHIPO id** (when present),
+  and the **source passage** it came from. End with a one-line **tally**
+  (`N success, N for review, N not found, N error`). Keep provenance detail (paper hash,
+  model id, timestamps) to a short trailing line per item, not a wall of text.
+- Provide a `--json` flag that prints the raw report instead, for anyone who wants to pipe
+  it onward — but the **default is the readable summary**.
 
 **Acceptance tests (`tests/`):** use fake plugins (temp scripts), no real model or network:
 - A 3-stage chain runs an input end-to-end; the final report reflects each hop's provenance.
@@ -30,4 +39,7 @@ Build in `core/` (stdlib only). This is host orchestration, not a plugin.
 - A stage emitting a list of N items fans out to N downstream results.
 - A mix where one fanned-out item is `not_found` and one errors → both are **reported**, the
   successful ones still complete, the run does not crash.
+- The **readable summary** is the default: a run prints per-item status + phenotype + PHIPO
+  id + source passage and a closing tally; an `ambiguous` item is visibly marked for review.
+  `--json` instead prints the raw report. (Assert on the rendered text, not just the data.)
 - Green gate passes; core stays stdlib-only; tests are network-free.
